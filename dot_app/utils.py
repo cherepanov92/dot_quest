@@ -8,8 +8,9 @@ from datetime import datetime
 class Utils:
 
     # Чтение файла с названиями акций
-    def read_tickers(self):
-        with open(r'../tickers.txt', mode='r') as f:
+    @staticmethod
+    def read_tickers():
+        with open('tickers.txt', mode='r') as f:
             line_list = []
             for line in f:
                 line_list.append(line.rstrip())
@@ -53,15 +54,15 @@ class Utils:
                            info = info_dict)
         return action_dict
 
-    def all_historical_dict(self):
+    def all_historical(self):
         all_historical = []
 
         # парсим страницы для всех акций из списка
-        for action in self.read_tickers():
+        for action in Utils.read_tickers():
             all_historical.append(self.historical_parser(action))
 
         # Отдаём всю информацию JSON-ом
-        return json.dumps(all_historical)
+        return json.dumps(all_historical, sort_keys=True, indent=4)
 
 if __name__ == '__main__':
     i = Utils()
@@ -72,6 +73,6 @@ if __name__ == '__main__':
     # for info in i.parser():
     #     print(info)
 
-    i.all_historical_dict()
+    print(i.all_historical())
 
     pass
