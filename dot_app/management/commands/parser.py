@@ -3,8 +3,9 @@ __author__ = "https://github.com/Biowulf513"
 __email__ = "cherepanov92@gmail.com"
 
 from django.core.management.base import BaseCommand, CommandError
-
 from dot_app.models import *
+from dot_app.utils import Utils
+
 
 class Command(BaseCommand):
     help = 'Парсинг'
@@ -15,6 +16,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for multi_thread_col in options['multi_thread_col']:
             try:
-                Historical.objects.all()
+                message = Utils()
+                print(message.parser())
+                # Historical.objects.all()
             except Exception:
                 print('bad')
