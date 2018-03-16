@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = "https://github.com/Biowulf513"
 __email__ = "cherepanov92@gmail.com"
+from lxml import html
+import requests
+import re
+from datetime import datetime
 
 class Utils:
 
@@ -16,11 +20,9 @@ class Utils:
 
     # Парсер
 
-    def parser(self):
-        from lxml import html
-        import requests
-        import re
-        from datetime import datetime
+    def historical_parser(self):
+        tickers
+
         # запрос структуры страницы
         page = requests.get('https://www.nasdaq.com/symbol/cvx/historical')
         tree = html.fromstring(page.content)
@@ -34,9 +36,15 @@ class Utils:
 
         while len(info_list):
             # Если в ячейке даты лежит время заменяем его на текущую дату
-            if not re.match(r'\d{2}\/\d{2}\/\d{4}',info_list[0]):
+            if len(info_list[0]) < 10:
                     info_list.pop(0)
                     info_list.insert(0, datetime.today().strftime('%Y-%m-%d'))
+            else:
+                # Форматирование даты
+                info_date = info_list.pop(0).split('/')
+                clear_data = '{YYYY}-{MM}-{DD}'.format(YYYY=info_date[2],MM=info_date[0],DD=info_date[1])
+                info_list.insert(0, clear_data)
+
             # Форматирование суммы в число
             correct_volume = (info_list[5].replace(',',''))
             info_list.pop(5)
@@ -46,6 +54,7 @@ class Utils:
             del info_list[:6]
 
         return info_dict
+
 
 
 

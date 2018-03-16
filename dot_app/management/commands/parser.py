@@ -18,19 +18,18 @@ class Command(BaseCommand):
 
             message = Utils()
             data_list = message.parser()
-            try:
-                for data in  data_list:
-                    Historical.objects.bulk_create([
-                        Historical(
-                            company_alias_id = 1,
-                            date = data[0],
-                            open = data[1],
-                            high = data[2],
-                            low = data[3],
-                            close = data[4],
-                            volume = data[5],
-                        )
-                    ])
-                    print('+1 запись')
-            except Exception:
-                print('error')
+            i = 0
+            for data in  data_list:
+                Historical.objects.bulk_create([
+                    Historical(
+                        company_alias_id = 1,
+                        date = data[0],
+                        open = data[1],
+                        high = data[2],
+                        low = data[3],
+                        close = data[4],
+                        volume = data[5],
+                    )
+                ])
+                i += 1
+            print(f'Записей добавлено: {i}')
