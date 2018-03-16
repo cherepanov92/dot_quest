@@ -36,7 +36,7 @@ class Utils:
             # Если в ячейке даты лежит время заменяем его на текущую дату
             if not re.match(r'\d{2}\/\d{2}\/\d{4}',info_list[0]):
                     info_list.pop(0)
-                    info_list.insert(0, datetime.today().strftime('%m/%d/%Y'))
+                    info_list.insert(0, datetime.today().strftime('%Y-%m-%d'))
             # Форматирование суммы в число
             correct_volume = (info_list[5].replace(',',''))
             info_list.pop(5)

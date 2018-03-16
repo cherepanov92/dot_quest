@@ -15,9 +15,22 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for multi_thread_col in options['multi_thread_col']:
+
+            message = Utils()
+            data_list = message.parser()
             try:
-                message = Utils()
-                print(message.parser())
-                # Historical.objects.all()
+                for data in  data_list:
+                    Historical.objects.bulk_create([
+                        Historical(
+                            company_alias_id = 1,
+                            date = data[0],
+                            open = data[1],
+                            high = data[2],
+                            low = data[3],
+                            close = data[4],
+                            volume = data[5],
+                        )
+                    ])
+                    print('+1 запись')
             except Exception:
-                print('bad')
+                print('error')
