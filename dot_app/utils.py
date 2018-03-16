@@ -11,6 +11,42 @@ def read_tickers():
 
         return line_list
 
-if __name__ == '__main__':
-    print(read_tickers())
 
+def parser():
+    from lxml import html
+    import requests
+    import re
+    from datetime import datetime
+    # запрос структуры страницы
+    page = requests.get('https://www.nasdaq.com/symbol/cvx/historical')
+    tree = html.fromstring(page.content)
+    # выборка информации с помощью xpath
+    page_table = tree.xpath(".//div[@id='quotes_content_left_pnlAJAX']/table/tbody/tr/td/text()")
+    # Конкатенация полученных данных
+    table_info = (''.join(page_table))
+    # превидение данных к списку
+    info_list = (re.findall(r'\s+(\S+)\s', table_info))
+    info_dict = []
+
+    while len(info_list):
+        # Если в ячейке даты лежит время заменяем его на текущую дату
+        if not re.match(r'\d{2}\/\d{2}\/\d{4}',info_list[0]):
+                info_list.pop(0)
+                info_list.insert(0, datetime.today().strftime('%m/%d/%Y'))
+        # Форматирование суммы в число
+        correct_volume = (info_list[5].replace(',',''))
+        info_list.pop(5)
+        info_list.insert(5, correct_volume)
+
+        info_dict.append(list(info_list[:6]))
+        del info_list[:6]
+
+    return info_dict
+
+
+if __name__ == '__main__':
+    # print(read_tickers())
+
+    for info in parser():
+        print(info)
+    pass
