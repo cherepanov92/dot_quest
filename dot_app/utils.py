@@ -2,15 +2,13 @@
 __author__ = "https://github.com/Biowulf513"
 __email__ = "cherepanov92@gmail.com"
 from lxml import html
-import requests
-import re
+import requests, re, json
 from datetime import datetime
 
 class Utils:
 
     # Чтение файла с названиями акций
-    @staticmethod
-    def read_tickers():
+    def read_tickers(self):
         with open(r'../tickers.txt', mode='r') as f:
             line_list = []
             for line in f:
@@ -20,13 +18,12 @@ class Utils:
 
     # Парсер
 
-    def historical_parser(self):
-        tickers
-
+    def historical_parser(self, action):
         # запрос структуры страницы
-        page = requests.get('https://www.nasdaq.com/symbol/cvx/historical')
+        page = requests.get(f'https://www.nasdaq.com/symbol/{action}/historical')
         tree = html.fromstring(page.content)
         # выборка информации с помощью xpath
+        full_action_name = tree.xpath(".//div[@id='qwidget_pageheader']/h1/text()")
         page_table = tree.xpath(".//div[@id='quotes_content_left_pnlAJAX']/table/tbody/tr/td/text()")
         # Конкатенация полученных данных
         table_info = (''.join(page_table))
@@ -52,11 +49,19 @@ class Utils:
 
             info_dict.append(list(info_list[:6]))
             del info_list[:6]
+        action_dict = dict(action=dict(short_name = action, full_name = full_action_name),
+                           info = info_dict)
+        return action_dict
 
-        return info_dict
+    def all_historical_dict(self):
+        all_historical = []
 
+        # парсим страницы для всех акций из списка
+        for action in self.read_tickers():
+            all_historical.append(self.historical_parser(action))
 
-
+        # Отдаём всю информацию JSON-ом
+        return json.dumps(all_historical)
 
 if __name__ == '__main__':
     i = Utils()
@@ -64,7 +69,9 @@ if __name__ == '__main__':
     # print(i.read_tickers())
 
 
-    for info in i.parser():
-        print(info)
+    # for info in i.parser():
+    #     print(info)
+
+    i.all_historical_dict()
 
     pass
