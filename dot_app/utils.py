@@ -19,15 +19,18 @@ class Utils:
 
     # Парсер
 
-    def historical_parser(self, action):
+    def historical_parser(self, company):
         # запрос структуры страницы
-        page = requests.get(f'https://www.nasdaq.com/symbol/{action}/historical')
+        page = requests.get(f'https://www.nasdaq.com/symbol/{company}/historical')
         tree = html.fromstring(page.content)
+
         # выборка информации с помощью xpath
-        full_action_name = tree.xpath(".//div[@id='qwidget_pageheader']/h1/text()")
+        full_company_name = tree.xpath(".//div[@id='qwidget_pageheader']/h1/text()")[0]
         page_table = tree.xpath(".//div[@id='quotes_content_left_pnlAJAX']/table/tbody/tr/td/text()")
+
         # Конкатенация полученных данных
         table_info = (''.join(page_table))
+
         # превидение данных к списку
         info_list = (re.findall(r'\s+(\S+)\s', table_info))
         info_dict = []
@@ -48,18 +51,25 @@ class Utils:
             info_list.pop(5)
             info_list.insert(5, correct_volume)
 
-            info_dict.append(list(info_list[:6]))
+            info_dict.append(dict(
+                        date = info_list[0],
+                        open = info_list[1],
+                        high = info_list[2],
+                        low = info_list[3],
+                        close = info_list[4],
+                        volume = info_list[5]
+                        ))
             del info_list[:6]
-        action_dict = dict(action=dict(short_name = action, full_name = full_action_name),
+        company_dict = dict(company=dict(short_name = company, full_name = full_company_name),
                            info = info_dict)
-        return action_dict
+        return company_dict
 
     def all_historical(self):
         all_historical = []
 
         # парсим страницы для всех акций из списка
-        for action in Utils.read_tickers():
-            all_historical.append(self.historical_parser(action))
+        for company in Utils.read_tickers():
+            all_historical.append(self.historical_parser(company))
 
         # Отдаём всю информацию JSON-ом
         return json.dumps(all_historical, sort_keys=True, indent=4)
