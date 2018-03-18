@@ -60,9 +60,34 @@ class Utils:
                         volume = info_list[5]
                         ))
             del info_list[:6]
-        company_dict = dict(company=dict(short_name = company, full_name = full_company_name),
+        company_dict = dict(company=dict(short_name = company),
                            info = info_dict)
         return company_dict
+
+    def insider_trades_parser(self, company):
+        # запрос структуры страницы
+        page = requests.get(f'https://www.nasdaq.com/symbol/{company}/insider-trades')
+        tree = html.fromstring(page.content)
+
+        # выборка информации с помощью xpath
+        xpath_selection = list(tree.xpath(".//*[@class='genTable']/table/tr/td//text()"))
+        info_list = []
+        while len(xpath_selection):
+            temp_list = xpath_selection[:8]
+            del xpath_selection[:8]
+
+            info_list.append(dict(
+                insider = temp_list[0],
+                relation = temp_list[1],
+                last_date = temp_list[2],
+                trans_type = temp_list[3],
+                owner_type = temp_list[4],
+                shares_traded = temp_list[5],
+                last_price = temp_list[6],
+                shares_held = temp_list[7]
+            ))
+
+        print(info_list)
 
     def all_historical(self):
         all_historical = []
@@ -83,6 +108,6 @@ if __name__ == '__main__':
     # for info in i.parser():
     #     print(info)
 
-    print(i.all_historical())
+    i.triders_parser('aapl')
 
     pass
