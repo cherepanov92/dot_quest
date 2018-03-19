@@ -55,6 +55,7 @@ class Utils:
             del info_list[:6]
         company_dict = dict(
                             company=dict(short_name = company),
+                            type = 'historical',
                             info = info_dict
                             )
         return company_dict
@@ -78,7 +79,7 @@ class Utils:
 
         # выборка информации с помощью xpath
         xpath_selection = list(tree.xpath(".//*[@class='genTable']/table/tr/td//text()"))
-        info_list = []
+        info_dict = []
         while len(xpath_selection):
             if len(xpath_selection)<8 or xpath_selection[7].isupper():
                 xpath_selection.insert(6,0)
@@ -90,43 +91,52 @@ class Utils:
             clear_data = '{YYYY}-{MM}-{DD}'.format(YYYY=info_date[2], MM=info_date[0], DD=info_date[1])
             temp_list.insert(2, clear_data)
 
-            info_list.append(dict(
-                insider = temp_list[0],
+            info_dict.append(dict(
+                insider_name = temp_list[0],
                 relation = temp_list[1],
                 last_date = temp_list[2],
                 trans_type = temp_list[3],
                 owner_type = temp_list[4],
-                shares_traded = temp_list[5],
+                shares_traded = re.sub('[,]', '',temp_list[5]),
                 last_price = temp_list[6],
-                shares_held = temp_list[7]
+                shares_held = re.sub('[,]', '',temp_list[7])
             ))
-        return info_list
+        return info_dict
 
     # Объединение информации о всех страницах insider_trades
-    def collect_insider_trades(self, company):
-        all_insider_trades = []
-        for i in range(1,11):
-            url = f'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'
-            try:
-                info = self.insider_trades_parser(url)
-                '''
-                Если дата последней страницы равна дате предпоследней страницы 
-                это означает что прошлая страница была последней (информативной).
-                Так-как сайт отдаёт страницу с последнем id даже если в id передаётся 
-                значение больше самой старой страницы
-                '''
-                if all_insider_trades and info[-1] == all_insider_trades[-1][-1]:
-                    print('повтор инфориации')
-                    break
-                # print(info[-1]['last_date'])
-                all_insider_trades.append(info)
-            except Exception as error:
-                print('ERROR', error)
-            print(len(all_insider_trades))
-        # print(all_insider_trades[-1][-1]['last_date'])
-        return json.dumps(all_insider_trades, sort_keys=True, indent=4)
+    def collect_insider_trades(self):
+        all_info = []
+        company_array = Utils.read_tickers()
+        for company in company_array:
+            info_dict = []
+            for i in range(1,11):
+                url = 'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'.format(company = company.lower(), i = i)
+                print(url)
+                try:
+                    info = self.insider_trades_parser(url)
+                    print(info[-1])
+                    '''
+                    Если дата последней страницы равна дате предпоследней страницы 
+                    это означает что прошлая страница была последней (информативной).
+                    Так-как сайт отдаёт страницу с последнем id даже если в id передаётся 
+                    значение больше самой старой страницы
+                    '''
+                    if info_dict and info[-1] == info_dict[-1][-1]:
+                        print('повтор инфориации')
+                        break
+                    print(info[-1]['last_date'])
+                    info_dict.append(info)
+                except Exception as error:
+                    print('ERROR', error)
+                print(len(info_dict))
+
+            all_info.append(dict(
+                company=dict(short_name=company),
+                type='insider_trades',
+                info=info_dict))
+
+        return json.dumps(all_info, sort_keys=True, indent=4)
 
 if __name__ == '__main__':
     i = Utils()
-    i.collect_insider_trades('aapl')
     pass
