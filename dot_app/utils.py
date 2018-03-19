@@ -23,7 +23,6 @@ class Utils:
         tree = html.fromstring(page.content)
 
         # выборка информации с помощью xpath
-        full_company_name = tree.xpath(".//div[@id='qwidget_pageheader']/h1/text()")[0]
         page_table = tree.xpath(".//div[@id='quotes_content_left_pnlAJAX']/table/tbody/tr/td/text()")
 
         # Конкатенация полученных данных
@@ -136,6 +135,29 @@ class Utils:
                 info=info_dict))
 
         return json.dumps(all_info, sort_keys=True, indent=4)
+
+#############################################################################
+
+    def url_generator(self):
+        all_company = Utils.read_tickers()
+        for company in all_company:
+            yield dict(company_name = company,
+                       type = 'historical',
+                       url = f'https://www.nasdaq.com/symbol/{company}/historical'
+                       )
+
+            for i in range(1,11):
+                yield dict(company_name = company,
+                           type = 'insider-trades',
+                           url = f'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'
+                           )
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     i = Utils()
