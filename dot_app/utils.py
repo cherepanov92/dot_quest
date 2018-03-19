@@ -115,9 +115,9 @@ class Utils:
                     info = self.insider_trades_parser(url)
                     print(info[-1])
                     '''
-                    Если дата последней страницы равна дате предпоследней страницы 
+                    Если дата последней страницы равна дате предпоследней страницы
                     это означает что прошлая страница была последней (информативной).
-                    Так-как сайт отдаёт страницу с последнем id даже если в id передаётся 
+                    Так-как сайт отдаёт страницу с последнем id даже если в id передаётся
                     значение больше самой старой страницы
                     '''
                     if info_dict and info[-1] == info_dict[-1][-1]:
@@ -136,7 +136,7 @@ class Utils:
 
         return json.dumps(all_info, sort_keys=True, indent=4)
 
-#############################################################################
+############################################################################
 
     def url_generator(self):
         all_company = Utils.read_tickers()
@@ -152,13 +152,60 @@ class Utils:
                            url = f'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'
                            )
 
+    # Парсинг компании
+    def historical(self, page_dict):
 
+        # запрос структуры страницы
+        page = requests.get(page_dict['url'])
+        tree = html.fromstring(page.content)
 
+        # выборка информации с помощью xpath
+        page_table = tree.xpath(".//div[@id='quotes_content_left_pnlAJAX']/table/tbody/tr/td/text()")
 
+        # Конкатенация полученных данных
+        table_info = (''.join(page_table))
 
+        # превидение данных к списку
+        info_list = (re.findall(r'\s+(\S+)\s', re.sub('[,]', '', table_info)))
+        info_dict = []
 
+        while len(info_list):
+            info_dict.append(dict(
+                date=self.format_data(info_list[0]),
+                open=info_list[1],
+                high=info_list[2],
+                low=info_list[3],
+                close=info_list[4],
+                volume=info_list[5]
+            ))
+            del info_list[:6]
+
+        company_dict = dict(company=dict(short_name=page_dict['company_name']),
+                            type='historical',
+                            info=info_dict
+                            )
+
+        print(company_dict)
+
+    def format_data(self, date_value):
+        # Если в ячейке даты лежит время заменяем его на текущую дату
+        if len(date_value) < 10:
+            return datetime.today().strftime('%Y-%m-%d')
+        # Иначе форматируем данные
+        else:
+            date_list = date_value.split('/')
+            return '{YYYY}-{MM}-{DD}'.format(YYYY=date_list[2], MM=date_list[0], DD=date_list[1])
+
+    def parser(self, page_dict):
+        if page_dict['type'] == 'insider-trades':
+            print('insider-trades')
+        elif page_dict['type'] == 'historical':
+            self.historical(page_dict)
+        else:
+            print('error')
 
 
 if __name__ == '__main__':
     i = Utils()
+
     pass
