@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from dot_app.models import *
 from dot_app.utils import Utils
 import json
+from datetime import datetime
 
 from multiprocessing import Pool
 
@@ -13,15 +14,35 @@ from multiprocessing import Pool
 class Command(BaseCommand):
     help = 'Парсинг'
 
-    def add_arguments(self, parser):
-        parser.add_argument('multi_thread_col', nargs='+', type=int)
+    def __init__(self):
+        super().__init__()
+        self.stat = datetime.now()
+        self.historical_col = 0
+        self.insider_trades_col = 0
+
+    def add_arguments(self, startparser):
+        startparser.add_argument('multi_thread_col', nargs='+', type=int)
 
     def handle(self, *args, **options):
+        for multi_thread_col in options['multi_thread_col']:
             parser = Utils()
 
-            with Pool(10) as p:
+            with Pool(multi_thread_col) as p:
                 for json_request in (p.map(parser.parser, parser.url_generator())):
                     self.json_parser(json_request)
+
+            stop = datetime.now()
+            time = stop - self.stat
+
+            print('за {time} минуты в {multi_thread_col}х канальном режиме было обработано:'.format(
+                time = time,
+                multi_thread_col = multi_thread_col))
+
+            print('Создано {summ} записей:\n{historical_col} - historical и {insider_trades_col} - insider trades'\
+                  .format(summ = self.historical_col + self.insider_trades_col,
+                          historical_col = self.historical_col,
+                          insider_trades_col = self.insider_trades_col
+                          ))
 
     def company_in_DB(self, company):
 
@@ -43,13 +64,11 @@ class Command(BaseCommand):
             return new_insider.id
 
     def json_parser(self, json_data):
-        data_json = json.loads(json_data)
-        print(data_json, '\n')
 
+        data_json = json.loads(json_data)
         company_id = self.company_in_DB(data_json['company']['short_name'])
         if data_json['type'] == 'historical':
             for company_info in data_json['info']:
-                print(company_info)
                 Historical.objects.bulk_create([
                     Historical(
                         company_alias_id = company_id,
@@ -61,46 +80,22 @@ class Command(BaseCommand):
                         volume = company_info['volume']
                     )
                 ])
-                # print('{type}{company_name} append'.format(type = company_info['type'], company_name = company_info['company']))
-        # elif data_json['type'] == 'insider-trades':
-        #     print('===insider_trades===')
-        #     for company_record in data_json['info']:
-        #         print(company_record)
-
-
-                # for one_record in company_record:
-
-                    # insider_id = self.insider_in_db(one_record)
-                    # print(insider_id, one_record['insider_name'], one_record['relation'], one_record['shares_held'])
-                    #
-                    # InsiderTrades.objects.bulk_create([
-                    #     InsiderTrades(
-                    #         company_alias_id = company_id,
-                    #         insider_id = insider_id,
-                    #         last_date = one_record['last_date'],
-                    #         trans_type = one_record['trans_type'],
-                    #         owner_type = one_record['owner_type'],
-                    #         shares_traded = one_record['shares_traded'],
-                    #         last_price = one_record['last_price'],
-                    #         shares_held = one_record['shares_held']
-                    #     )
-                    # ])
-#
-#
-#
-#
-#
-#
-# # if __name__ == '__main__':
-# #     i = Command()
-# #     i.pool()
-            # url =>| pool => html => info => json => DB
-            '''
-            чтение из файла
-            для каждого лейбла делаем список
-            name = goog
-            создаём url на 3 мес
-            добавляем к списку + тип historical
-            создаём 10 записей добавляем к списку + тип InsiderTrades
-            выгружаем
-            '''
+                self.historical_col += 1
+        elif data_json['type'] == 'insider-trades':
+            for company_record in data_json['info']:
+                insider_id = self.insider_in_db(company_record)
+                InsiderTrades.objects.bulk_create([
+                    InsiderTrades(
+                        company_alias_id = company_id,
+                        insider_id = insider_id,
+                        last_date = company_record['last_date'],
+                        trans_type = company_record['trans_type'],
+                        owner_type = company_record['owner_type'],
+                        shares_traded = company_record['shares_traded'],
+                        last_price = company_record['last_price'],
+                        shares_held = company_record['shares_held']
+                    )
+                ])
+                self.insider_trades_col += 1
+        else:
+            raise ValueError()
