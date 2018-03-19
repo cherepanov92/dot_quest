@@ -15,20 +15,16 @@ class Command(BaseCommand):
 
         if Company.objects.filter(company_alias = company['short_name']).exists():
             exist_company = Company.objects.get(company_alias = company['short_name'])
-            print('Компания {} уже существует'.format(company['short_name']))
             return exist_company.id
         else:
-            new_company = Company(company_alias = company['short_name'], company_name = company['full_name'])
+            new_company = Company(company_alias = company['short_name'])
             new_company.save()
-            print('Добавлена компания {}'.format(company['short_name']))
             return new_company.id
 
     def add_arguments(self, parser):
         parser.add_argument('multi_thread_col', nargs='+', type=int)
 
     def handle(self, *args, **options):
-        # for multi_thread_col in options['multi_thread_col']:
-
             message = Utils()
             data_json = json.loads(message.all_historical())
             i = 0
@@ -48,6 +44,5 @@ class Command(BaseCommand):
                         )
                     ])
                     i += 1
-                    print(f'Запись {i} добавлена')
 
-                print(f'Записей добавлено: {i}')
+                print('Записей фирмы {company} добавлено: {col}'.format(company = company_info['company']['short_name'], col = i))

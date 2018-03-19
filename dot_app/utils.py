@@ -30,7 +30,7 @@ class Utils:
         table_info = (''.join(page_table))
 
         # превидение данных к списку
-        info_list = (re.findall(r'\s+(\S+)\s', table_info))
+        info_list = (re.findall(r'\s+(\S+)\s', re.sub('[,]', '',table_info)))
         info_dict = []
 
         while len(info_list):
@@ -43,11 +43,6 @@ class Utils:
                 info_date = info_list.pop(0).split('/')
                 clear_data = '{YYYY}-{MM}-{DD}'.format(YYYY=info_date[2],MM=info_date[0],DD=info_date[1])
                 info_list.insert(0, clear_data)
-
-            # Форматирование суммы в число
-            correct_volume = (info_list[5].replace(',',''))
-            info_list.pop(5)
-            info_list.insert(5, correct_volume)
 
             info_dict.append(dict(
                         date = info_list[0],
@@ -110,7 +105,7 @@ class Utils:
     # Объединение информации о всех страницах insider_trades
     def collect_insider_trades(self, company):
         all_insider_trades = []
-        for i in range(1,10):
+        for i in range(1,11):
             url = f'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'
             try:
                 info = self.insider_trades_parser(url)
@@ -120,13 +115,14 @@ class Utils:
                 Так-как сайт отдаёт страницу с последнем id даже если в id передаётся 
                 значение больше самой старой страницы
                 '''
-                if all_insider_trades and info[-1]['last_date'] == all_insider_trades[-1][-1]['last_date']:
+                if all_insider_trades and info[-1] == all_insider_trades[-1][-1]:
                     print('повтор инфориации')
                     break
                 # print(info[-1]['last_date'])
                 all_insider_trades.append(info)
             except Exception as error:
                 print('ERROR', error)
+            print(len(all_insider_trades))
         # print(all_insider_trades[-1][-1]['last_date'])
         return json.dumps(all_insider_trades, sort_keys=True, indent=4)
 
