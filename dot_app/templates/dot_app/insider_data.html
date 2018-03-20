@@ -1,8 +1,9 @@
 {% extends "dot_app/_base.html" %}
 {% block title %}
-    {{ ticker }}
+    {{ insider_name }}
 {% endblock %}
 {% block content %}
+    {{ticker_insider}}
     <div>
         <table>
             <caption> company {{ ticker }} </caption>
@@ -16,7 +17,7 @@
                 <th>Shares Held</th>
             </tr>
 
-            {% for record in ticker_insider %}
+            {% for record in insider_data %}
             <tr>
                 <th><a href="/{{ ticker }}/insider/{{ record.insider }}">{{ record.insider }}</a></th>
                 <th>{{ record.last_date }}</th>

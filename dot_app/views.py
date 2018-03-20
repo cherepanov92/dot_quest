@@ -18,3 +18,10 @@ def insider(request, ticker):
     ticker_insider = InsiderTrades.objects.filter(company_alias=ticker_obj)
     context = {'ticker': ticker, 'ticker_insider': ticker_insider}
     return render(request, 'dot_app/insider.html', context)
+
+def insider_name(request, ticker, insider_name):
+    ticker_obj = Company.objects.get(company_alias=ticker)
+    insider_obj = Insider.objects.get(name = insider_name)
+    insider_data = InsiderTrades.objects.filter(company_alias=ticker_obj).filter(insider = insider_obj.id)
+    context = {'ticker':ticker, 'insider_data':insider_data, 'insider_name':insider_name}
+    return render(request, 'dot_app/insider_data.html', context)
