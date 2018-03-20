@@ -1,0 +1,45 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+    <div>
+        <table>
+            <caption> company {{ ticker }} </caption>
+            <tr>
+                <th>Insider	Relation</th>
+                <th>Last Date</th>
+                <th>Transaction Type</th>
+                <th>OwnerType</th>
+                <th>Shares Traded</th>
+                <th>Last Price</th>
+                <th>Shares Held</th>
+            </tr>
+
+            {% for record in ticker_insider %}
+            <tr>
+                <th>{{ record.insider }}</th>
+                <th>{{ record.last_date }}</th>
+                <th>{{ record.trans_type }}</th>
+                <th>{{ record.owner_type }}</th>
+                <th>{{ record.shares_traded }}</th>
+                <th>{{ record.last_price }}</th>
+                <th>{{ record.shares_held }}</th>
+            </tr>
+            {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </table>
+    </div>
+{% endblock %}

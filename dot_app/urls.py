@@ -4,11 +4,10 @@ __email__ = "cherepanov92@gmail.com"
 
 from django.conf.urls import url
 
-from .views import index, historical
+from .views import index, historical, insider
 
 urlpatterns = [
     url(r'^$', index, name="index"),
-    url(r'^(?P<ticker>[A-Z]+)$', historical, name="historical"),
-
-
+    url(r'^(?P<ticker>[A-Za-z]+)$', historical, name="historical"),
+    url(r'^(?P<ticker>[A-Za-z]+)/insider$', insider, name="insider"),
 ]
