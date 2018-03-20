@@ -1,0 +1,32 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+    <div>
+
+        <table>
+            <caption> company {{ ticker }} </caption>
+            <tr>
+                <th>Date</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Close / Last</th>
+                <th>Volume</th>
+            </tr>
+
+            {% for record in ticker_historical %}
+            <tr>
+                <th>{{ record.date }}</th>
+                <th>{{ record.open }}</th>
+                <th>{{ record.high }}</th>
+                <th>{{ record.low }}</th>
+                <th>{{ record.close }}</th>
+                <th>{{ record.volume }}</th>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+{% endblock %}

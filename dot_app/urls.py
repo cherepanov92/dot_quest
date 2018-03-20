@@ -4,9 +4,11 @@ __email__ = "cherepanov92@gmail.com"
 
 from django.conf.urls import url
 
-from .views import *
+from .views import index, historical
 
 urlpatterns = [
     url(r'^$', index, name="index"),
-    # url(r'^form/', MyView.as_view(), name='form'),
+    url(r'^(?P<ticker>[A-Z]+)$', historical, name="historical"),
+
+
 ]

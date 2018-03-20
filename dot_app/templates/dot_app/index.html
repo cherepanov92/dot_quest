@@ -3,7 +3,7 @@
 {% block content %}
     <div>
         {% for company in all_company %}
-            <a href="#">{{ company }}</a>
+            <a href={{ company }}>{{ company }}</a>
         {% endfor %}
     </div>
 {% endblock %}
