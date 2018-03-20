@@ -10,5 +10,11 @@ def index(request):
 def historical(request, ticker):
     ticker_obj = Company.objects.get(company_alias = ticker)
     ticker_historical = Historical.objects.filter(company_alias = ticker_obj)
-    context = {'ticker': ticker.lower(),'test': len(ticker_historical), 'ticker_historical': ticker_historical}
+    context = {'ticker': ticker, 'ticker_historical': ticker_historical}
     return render(request, 'dot_app/historical.html', context)
+
+def insider(request, ticker):
+    ticker_obj = Company.objects.get(company_alias=ticker)
+    ticker_insider = InsiderTrades.objects.filter(company_alias=ticker_obj)
+    context = {'ticker': ticker, 'ticker_insider': ticker_insider}
+    return render(request, 'dot_app/insider.html', context)

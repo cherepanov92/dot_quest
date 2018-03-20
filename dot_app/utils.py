@@ -77,7 +77,7 @@ class Utils:
             ))
             del info_list[:6]
 
-        company_dict = dict(company=dict(short_name=page_dict['company_name']),
+        company_dict = dict(company=dict(short_name=page_dict['company_name'].lower()),
                             type='historical',
                             info=info_dict
                             )
@@ -109,7 +109,7 @@ class Utils:
                 last_price = temp_list[6],
                 shares_held = re.sub('[,]', '',temp_list[7])
             ))
-        company_dict = dict(company=dict(short_name=page_dict['company_name']),
+        company_dict = dict(company=dict(short_name=page_dict['company_name'].lower()),
                             type='insider-trades',
                             info=info_dict
                             )
