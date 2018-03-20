@@ -1,0 +1,50 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+    <div>
+        <a href="/{{ ticker }}/insider">Insider-Trades</a>
+        <!--{{ date_dict.date_to }}-->
+        <!--{{ date_dict.date_from }}-->
+
+        <!--{{ test.volume }}-->
+
+        <table>
+            <caption> company {{ ticker }} </caption>
+            <tr>
+                <th>Date</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Close / Last</th>
+                <th>Volume</th>
+            </tr>
+            <tr>
+                <th>{{ date_from.date }}</th>
+                <th>{{ date_from.open }}</th>
+                <th>{{ date_from.high }}</th>
+                <th>{{ date_from.low }}</th>
+                <th>{{ date_from.close }}</th>
+                <th>{{ date_from.volume }}</th>
+            </tr>
+            <tr>
+                <th>{{ date_to.date }}</th>
+                <th>{{ date_to.open }}</th>
+                <th>{{ date_to.high }}</th>
+                <th>{{ date_to.low }}</th>
+                <th>{{ date_to.close }}</th>
+                <th>{{ date_to.volume }}</th>
+            </tr>
+            <tr>
+                <th>Изменения</th>
+                <th>{{ decision.open }}</th>
+                <th>{{ decision.high }}</th>
+                <th>{{ decision.low }}</th>
+                <th>{{ decision.close }}</th>
+                <th>{{ decision.volume }}</th>
+            </tr>
+
+        </table>
+    </div>
+{% endblock %}
