@@ -47,3 +47,11 @@ def analytics(request, ticker):
 
             return render(request, 'dot_app/analytics.html', context)
 
+
+def delta(request, ticker):
+    ticker_obj = Company.objects.get(company_alias=ticker)
+
+    if request.method == 'GET':
+        request_dict = request.GET
+        if request_dict['value'] and request_dict['type'] in ['open','high','low','close']:
+
