@@ -14,12 +14,12 @@ class Historical(models.Model):
             company = str(self.company_alias),
             date = str(self.date)
         )
+
 class Company(models.Model):
-    company_name = models.CharField(max_length=40)
     company_alias = models.CharField(max_length=40)
 
     def __str__(self):
-        return f'{self.company_name}'
+        return f'{self.company_alias}'
 
 class Insider(models.Model):
     name = models.CharField(max_length=40)
@@ -27,7 +27,6 @@ class Insider(models.Model):
 
     def __str__(self):
         return f'{self.name}'
-
 
 class InsiderTrades(models.Model):
     company_alias = models.ForeignKey('Company')
