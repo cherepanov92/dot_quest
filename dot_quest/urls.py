@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from dot_app.views import index
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('dot_app.urls'))
+    url(r'^$', index, name="index"),
+    url(r'^(?P<ticker>[A-Za-z]+)', include('dot_app.urls')),
 ]
