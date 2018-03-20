@@ -1,0 +1,9 @@
+{% extends "dot_app/_base.html" %}
+
+{% block content %}
+    <div>
+        {% for company in all_company %}
+            <a href="#">{{ company }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}
