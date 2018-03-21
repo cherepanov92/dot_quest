@@ -3,11 +3,12 @@
     {{ ticker }}
 {% endblock %}
 {% block content %}
-    <div class="page-header">
-        <h1>{{ ticker }} <small>company</small></h1>
-    </div>
+        <div class="page-header">
+            <h1>{{ ticker }} <small>company</small></h1>
+
+            <a class="btn btn-default" href="/{{ ticker }}/insider" role="button">Insider-Trades</a>
+        </div>
     <div>
-        <a href="/{{ ticker }}/insider">Insider-Trades</a>
         <table class="table table-hover table-bordered">
             <tr>
                 <th>Date</th>
@@ -18,30 +19,29 @@
                 <th>Volume</th>
             </tr>
             <tr>
-                <th>{{ date_from.date }}</th>
-                <th>{{ date_from.open }}</th>
-                <th>{{ date_from.high }}</th>
-                <th>{{ date_from.low }}</th>
-                <th>{{ date_from.close }}</th>
-                <th>{{ date_from.volume }}</th>
+                <td>{{ date_from.date }}</td>
+                <td>{{ date_from.open }}</td>
+                <td>{{ date_from.high }}</td>
+                <td>{{ date_from.low }}</td>
+                <td>{{ date_from.close }}</td>
+                <td>{{ date_from.volume }}</td>
             </tr>
             <tr>
-                <th>{{ date_to.date }}</th>
-                <th>{{ date_to.open }}</th>
-                <th>{{ date_to.high }}</th>
-                <th>{{ date_to.low }}</th>
-                <th>{{ date_to.close }}</th>
-                <th>{{ date_to.volume }}</th>
+                <td>{{ date_to.date }}</td>
+                <td>{{ date_to.open }}</td>
+                <td>{{ date_to.high }}</td>
+                <td>{{ date_to.low }}</td>
+                <td>{{ date_to.close }}</td>
+                <td>{{ date_to.volume }}</td>
             </tr>
             <tr>
-                <th>Изменения</th>
-                <th>{{ decision.open }}</th>
-                <th>{{ decision.high }}</th>
-                <th>{{ decision.low }}</th>
-                <th>{{ decision.close }}</th>
-                <th>{{ decision.volume }}</th>
+                <td>Изменения</td>
+                <td>{{ decision.open }}</td>
+                <td>{{ decision.high }}</td>
+                <td>{{ decision.low }}</td>
+                <td>{{ decision.close }}</td>
+                <td>{{ decision.volume }}</td>
             </tr>
-
         </table>
     </div>
 {% endblock %}
