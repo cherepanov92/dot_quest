@@ -3,10 +3,12 @@
     {{ ticker }}
 {% endblock %}
 {% block content %}
+    <div class="page-header">
+        <h1>{{ ticker }} <small>company</small></h1>
+    </div>
     <div>
         <a href="/{{ ticker }}/insider">Insider-Trades</a>
-        <table>
-            <caption> company {{ ticker }} </caption>
+        <table class="table table-hover table-bordered">
             <tr>
                 <th>Date</th>
                 <th>Open</th>
