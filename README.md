@@ -1,6 +1,13 @@
-Тестовое задание
------------------------------------
+<details> 
+<summary>Запуск парсера</summary>
+   Для запуска процесса парсинга необходимо вызвать из папки проекта  
+   python manage.py parser (кол-во потоков)
+   
+   python manage.py parser 10  -  парсер в 10 потоков
 
+</details>
+
+-----------------------------------
 ### Само задание:
 * http://www.nasdaq.com/symbol/cvx/historical
 * http://www.nasdaq.com/symbol/cvx/insider-trades
