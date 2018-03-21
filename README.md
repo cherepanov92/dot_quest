@@ -1,9 +1,9 @@
 <details> 
 <summary>Запуск парсера</summary>
-   Для запуска процесса парсинга необходимо вызвать 
-   python django-admin parser (кол-во потоков)
+   Для запуска процесса парсинга необходимо вызвать из папки проекта  
+   python manage.py parser (кол-во потоков)
    
-   python django-admin parser 10  -  парсер в 10 потоков
+   python manage.py parser 10  -  парсер в 10 потоков
 
 </details>
 
