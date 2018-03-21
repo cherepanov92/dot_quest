@@ -1,0 +1,36 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+    <div>
+        <div class="page-header">
+            <h1>{{ ticker }} <small>company</small></h1>
+
+            <a class="btn btn-default" href="/{{ ticker }}/insider" role="button">Insider-Trades</a>
+            <a class="btn btn-default" href="/{{ ticker }}/analytics?date_from=2018-01-08&date_to=2018-01-11" role="button"> Аналитика </a>
+        </div>
+
+        <table class="table table-hover table-bordered">
+            <tr>
+                <th>Date</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Close / Last</th>
+                <th>Volume</th>
+            </tr>
+
+            {% for record in ticker_historical %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.open }}</td>
+                <td>{{ record.high }}</td>
+                <td>{{ record.low }}</td>
+                <td>{{ record.close }}</td>
+                <td>{{ record.volume }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

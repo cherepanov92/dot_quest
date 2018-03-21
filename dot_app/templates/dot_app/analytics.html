@@ -1,0 +1,47 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+        <div class="page-header">
+            <h1>{{ ticker }} <small>company</small></h1>
+
+            <a class="btn btn-default" href="/{{ ticker }}/insider" role="button">Insider-Trades</a>
+        </div>
+    <div>
+        <table class="table table-hover table-bordered">
+            <tr>
+                <th>Date</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Close / Last</th>
+                <th>Volume</th>
+            </tr>
+            <tr>
+                <td>{{ date_from.date }}</td>
+                <td>{{ date_from.open }}</td>
+                <td>{{ date_from.high }}</td>
+                <td>{{ date_from.low }}</td>
+                <td>{{ date_from.close }}</td>
+                <td>{{ date_from.volume }}</td>
+            </tr>
+            <tr>
+                <td>{{ date_to.date }}</td>
+                <td>{{ date_to.open }}</td>
+                <td>{{ date_to.high }}</td>
+                <td>{{ date_to.low }}</td>
+                <td>{{ date_to.close }}</td>
+                <td>{{ date_to.volume }}</td>
+            </tr>
+            <tr>
+                <td>Изменения</td>
+                <td>{{ decision.open }}</td>
+                <td>{{ decision.high }}</td>
+                <td>{{ decision.low }}</td>
+                <td>{{ decision.close }}</td>
+                <td>{{ decision.volume }}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}
