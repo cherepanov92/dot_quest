@@ -1,0 +1,27 @@
+{% extends "dot_app/_base.html" %}
+{% block title %}
+    {{ ticker }}
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>{{ ticker }} <small>delta</small></h1>
+    </div>
+    <div class="col-md-8 col-md-offset-2">
+        <table class="table table-bordered">
+            <tr>
+                <th>Дата начала</th>
+                <th>Дата конца</th>
+            </tr>
+            {% for date in row%}
+                {% if date.2 == 'UP' %}
+                    <tr class="success">
+                {% else %}
+                    <tr class="danger">
+                {% endif %}
+                        <td>{{ date.0 }}</td>
+                        <td>{{ date.1 }}</td>
+                    </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
