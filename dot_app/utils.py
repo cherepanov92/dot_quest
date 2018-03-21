@@ -30,13 +30,13 @@ class Utils:
         for company in all_company:
             yield dict(company_name = company,
                        type = 'historical',
-                       url = f'https://www.nasdaq.com/symbol/{company}/historical'
+                       url = f'https://www.nasdaq.com/symbol/{company.lower()}/historical'
                        )
 
             for i in range(1,11):
                 yield dict(company_name = company,
                            type = 'insider-trades',
-                           url = f'https://www.nasdaq.com/symbol/{company}/insider-trades?page={i}'
+                           url = f'https://www.nasdaq.com/symbol/{company.lower()}/insider-trades?page={i}'
                            )
 
     # Форматирование request Даты
