@@ -7,8 +7,10 @@
         <div class="page-header">
             <h1>{{ ticker }} <small>company</small></h1>
 
-            <a class="btn btn-default" href="/{{ ticker }}/insider" role="button">Insider-Trades</a>
+            <a class="btn btn-default" href="{% url  'web:insider' ticker %}" role="button">Insider-Trades</a>
             <a class="btn btn-default" href="/{{ ticker }}/analytics?date_from=2018-01-08&date_to=2018-01-11" role="button"> Аналитика </a>
+            <a class="btn btn-default" href="{% url  'api:historical' ticker %}" role="button">API page</a>
+
         </div>
 
         <table class="table table-hover table-bordered">

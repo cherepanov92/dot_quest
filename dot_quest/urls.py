@@ -20,5 +20,6 @@ from dot_app.views import index
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', index, name="index"),
-    url(r'^(?P<ticker>[A-Za-z]+)/', include('dot_app.urls')),
+    url(r'^(?P<ticker>[A-Za-z]+)/', include('dot_app.urls', namespace='web')),
+    url(r'^(?P<ticker>[A-Za-z]+)/api/', include('dot_app.urls', namespace='api'), {'api': True}),
 ]
