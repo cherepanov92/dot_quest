@@ -62,9 +62,14 @@ def analytics(request, ticker, api=False):
             context = {'ticker': ticker,
                        'date_from':date_from_obj,
                        'date_to':date_to_obj,
-                       'decision':decision}
+                       'decision':decision,
+                       'api_date_from': request_dict['date_from'],
+                       'api_date_to': request_dict['date_to'],
+                       }
             if api:
                 dump = json.dumps(decision)
+                print('================')
+                print(decision)
                 return HttpResponse(dump, content_type='application/json')
 
             return render(request, 'dot_app/analytics.html', context)

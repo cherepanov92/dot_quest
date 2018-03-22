@@ -8,7 +8,7 @@
 
         <a class="btn btn-default " href="{% url  'web:historical' ticker %}" role="button">Historical</a>
         <a class="btn btn-default " href="{% url  'web:insider' ticker %}" role="button">Insider</a>
-        <a class="btn btn-default pull-right" href="api/?date_from={{date_from.date}}&date_to={{date_to.date}}" role="button">API page</a>
+        <a class="btn btn-default pull-right" href="api/analytics?date_from={{api_date_from}}&date_to={{api_date_to}}" role="button">API page</a>
     </div>
 
 
