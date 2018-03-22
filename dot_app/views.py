@@ -21,7 +21,7 @@ def historical(request, ticker, api=False):
                'date_from':'2018-01-11', 'date_to':'2018-01-08'}
 
     if api:
-        context_api = serializers.serialize('json', ticker_historical)
+        context_api = serializers.serialize('json', ticker_historical, indent=4)
         return HttpResponse(context_api, content_type='application/json')
     return render(request, 'dot_app/historical.html', context)
 
@@ -30,7 +30,7 @@ def insider(request, ticker, api=False):
     ticker_insider = InsiderTrades.objects.filter(company_alias=ticker_obj)
     context = {'ticker': ticker, 'ticker_insider': ticker_insider}
     if api:
-        context_api = serializers.serialize('json', ticker_insider)
+        context_api = serializers.serialize('json', ticker_insider, indent=4)
         return HttpResponse(context_api, content_type='application/json')
     return render(request, 'dot_app/insider.html', context)
 
@@ -41,7 +41,7 @@ def insider_name(request, ticker, insider_name, api=False):
     context = {'ticker':ticker, 'insider_data':insider_data, 'insider_name':insider_name}
 
     if api:
-        context_api = serializers.serialize('json', insider_data)
+        context_api = serializers.serialize('json', insider_data, indent=4)
         return HttpResponse(context_api, content_type='application/json')
 
     return render(request, 'dot_app/insider_data.html', context)
@@ -68,13 +68,13 @@ def analytics(request, ticker, api=False):
                        'api_date_to': request_dict['date_to'],
                        }
             if api:
-                dump = json.dumps(decision)
+                dump = json.dumps(decision, indent=4)
                 return HttpResponse(dump, content_type='application/json')
 
             return render(request, 'dot_app/analytics.html', context)
 
 def delta(request, ticker, api=False):
-    ticker_obj = Company.objects.get(company_alias=ticker)
+    ticker_obj = Company.objects.get(company_alias=ticker).id
 
     if request.method == 'GET':
         request_dict = request.GET
@@ -106,7 +106,7 @@ def delta(request, ticker, api=False):
                             " GROUP BY t1.id "
                             " ORDER BY t1.date ) select2 "
                             " GROUP BY date2 "
-                            " ORDER BY date2; " .format(ticker_id = 1,
+                            " ORDER BY date2; " .format(ticker_id = ticker_obj,
                                                         value = request_dict['value'],
                                                         type = request_dict['type'],
                                                         up = ", 'UP' direction ",
