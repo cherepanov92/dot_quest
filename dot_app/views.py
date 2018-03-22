@@ -1,8 +1,10 @@
 import json
 
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
+from django.db import connection
+import datetime
 from .models import *
 
 def index(request):
@@ -14,9 +16,12 @@ def index(request):
 def historical(request, ticker, api=False):
     ticker_obj = Company.objects.get(company_alias = ticker)
     ticker_historical = Historical.objects.filter(company_alias = ticker_obj)
-    context = {'ticker': ticker, 'ticker_historical': ticker_historical,'date_from':'2018-01-11', 'date_to':'2018-01-08'}
+    context = {'ticker': ticker,
+               'ticker_historical': ticker_historical,
+               'date_from':'2018-01-11', 'date_to':'2018-01-08'}
+
     if api:
-        context_api = serializers.serialize('json', ticker_historical)
+        context_api = serializers.serialize('json', ticker_historical, indent=4)
         return HttpResponse(context_api, content_type='application/json')
     return render(request, 'dot_app/historical.html', context)
 
@@ -25,7 +30,7 @@ def insider(request, ticker, api=False):
     ticker_insider = InsiderTrades.objects.filter(company_alias=ticker_obj)
     context = {'ticker': ticker, 'ticker_insider': ticker_insider}
     if api:
-        context_api = serializers.serialize('json', ticker_insider)
+        context_api = serializers.serialize('json', ticker_insider, indent=4)
         return HttpResponse(context_api, content_type='application/json')
     return render(request, 'dot_app/insider.html', context)
 
@@ -36,7 +41,7 @@ def insider_name(request, ticker, insider_name, api=False):
     context = {'ticker':ticker, 'insider_data':insider_data, 'insider_name':insider_name}
 
     if api:
-        context_api = serializers.serialize('json', insider_data)
+        context_api = serializers.serialize('json', insider_data, indent=4)
         return HttpResponse(context_api, content_type='application/json')
 
     return render(request, 'dot_app/insider_data.html', context)
@@ -58,17 +63,72 @@ def analytics(request, ticker, api=False):
             context = {'ticker': ticker,
                        'date_from':date_from_obj,
                        'date_to':date_to_obj,
-                       'decision':decision}
+                       'decision':decision,
+                       'api_date_from': request_dict['date_from'],
+                       'api_date_to': request_dict['date_to'],
+                       }
             if api:
-                dump = json.dumps(decision)
+                dump = json.dumps(decision, indent=4)
                 return HttpResponse(dump, content_type='application/json')
 
             return render(request, 'dot_app/analytics.html', context)
 
 def delta(request, ticker, api=False):
-    ticker_obj = Company.objects.get(company_alias=ticker)
+    ticker_obj = Company.objects.get(company_alias=ticker).id
 
     if request.method == 'GET':
         request_dict = request.GET
-        if request_dict['value'] and request_dict['type'] in ['open','high','low','close']:
-            pass
+        try:
+            if int(request_dict['value']) and request_dict['type'] in ['open','high','low','close']:
+
+                s = (" SELECT MAX( select1.date ), date2 {up} FROM ("
+                            " SELECT t1.date, t1.{type}, "
+                            " MIN(t2.date) as date2 "
+                            " FROM dot_app_historical t1 "
+                            " INNER JOIN dot_app_historical t2 "
+                            " ON (t2.{type} >= t1.{type} + {value} ) "
+                            " AND t1.date < t2.date "
+                            " AND t1.company_alias_id = t2.company_alias_id "
+                            " WHERE t1.company_alias_id = {ticker_id} "
+                            " GROUP BY t1.id "
+                            " ORDER BY t1.date ) select1 "
+                            " GROUP BY date2 "
+                            " UNION "
+                            " SELECT MAX( select2.date ), date2{down}FROM ( "
+                            " SELECT t1.date, t1.{type}, "
+                            " MIN(t2.date) as date2 "
+                            " FROM dot_app_historical t1 "
+                            " INNER JOIN dot_app_historical t2 "
+                            " ON (t2.{type} <= t1.{type} - {value} ) "
+                            " AND t1.date < t2.date "
+                            " AND t1.company_alias_id = t2.company_alias_id "
+                            " WHERE t1.company_alias_id = {ticker_id} "
+                            " GROUP BY t1.id "
+                            " ORDER BY t1.date ) select2 "
+                            " GROUP BY date2 "
+                            " ORDER BY date2; " .format(ticker_id = ticker_obj,
+                                                        value = request_dict['value'],
+                                                        type = request_dict['type'],
+                                                        up = ", 'UP' direction ",
+                                                        down = ", 'DOWN' as direction ")
+                             )
+        except ValueError:
+            raise Http404
+            # pass
+        else:
+            cursor = connection.cursor()
+            cursor.execute(s)
+            row = cursor.fetchall()
+            context = {'ticker': ticker, 'row': row, 'type':request_dict['type'], 'value':request_dict['value']}
+
+            if api:
+                times_list = []
+                for record in row:
+                    start = record[0]
+                    finish = record[1]
+                    answer = {'start': start.strftime('%m/%d/%Y'), 'finish': finish.strftime('%m/%d/%Y'), 'status': record[2]}
+                    times_list.append(answer)
+
+                return HttpResponse(json.dumps(times_list), content_type='application/json')
+
+            return render(request, 'dot_app/delta.html', context)
