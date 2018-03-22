@@ -15,7 +15,10 @@ def index(request):
 def historical(request, ticker, api=False):
     ticker_obj = Company.objects.get(company_alias = ticker)
     ticker_historical = Historical.objects.filter(company_alias = ticker_obj)
-    context = {'ticker': ticker, 'ticker_historical': ticker_historical,'date_from':'2018-01-11', 'date_to':'2018-01-08'}
+    context = {'ticker': ticker,
+               'ticker_historical': ticker_historical,
+               'date_from':'2018-01-11', 'date_to':'2018-01-08'}
+
     if api:
         context_api = serializers.serialize('json', ticker_historical)
         return HttpResponse(context_api, content_type='application/json')
@@ -108,6 +111,12 @@ def delta(request, ticker, api=False):
             cursor = connection.cursor()
             cursor.execute(s)
             row = cursor.fetchall()
-            context = {'ticker': ticker, 'row': row}
+            context = {'ticker': ticker, 'row': row, 'type':request_dict['type'], 'value':request_dict['value']}
+
+            if api:
+                # dump = json.dumps(row)
+                # return HttpResponse(dump, content_type='application/json')
+                context_api = serializers.serialize('json', row)
+                return HttpResponse(context_api, content_type='application/json')
 
             return render(request, 'dot_app/delta.html', context)
