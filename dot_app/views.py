@@ -1,9 +1,10 @@
 import json
 
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.db import connection
+import datetime
 from .models import *
 
 def index(request):
@@ -68,8 +69,6 @@ def analytics(request, ticker, api=False):
                        }
             if api:
                 dump = json.dumps(decision)
-                print('================')
-                print(decision)
                 return HttpResponse(dump, content_type='application/json')
 
             return render(request, 'dot_app/analytics.html', context)
@@ -119,9 +118,13 @@ def delta(request, ticker, api=False):
             context = {'ticker': ticker, 'row': row, 'type':request_dict['type'], 'value':request_dict['value']}
 
             if api:
-                # dump = json.dumps(row)
-                # return HttpResponse(dump, content_type='application/json')
-                context_api = serializers.serialize('json', row)
-                return HttpResponse(context_api, content_type='application/json')
+                times_list = []
+                for record in row:
+                    start = record[0]
+                    finish = record[1]
+                    answer = {'start': start.strftime('%m/%d/%Y'), 'finish': finish.strftime('%m/%d/%Y'), 'status': record[2]}
+                    times_list.append(answer)
+
+                return HttpResponse(json.dumps(times_list), content_type='application/json')
 
             return render(request, 'dot_app/delta.html', context)
