@@ -1,7 +1,7 @@
 import json
 
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.db import connection
 import datetime
@@ -78,40 +78,44 @@ def delta(request, ticker, api=False):
 
     if request.method == 'GET':
         request_dict = request.GET
-        if request_dict['value'] and request_dict['type'] in ['open','high','low','close']:
+        try:
+            if int(request_dict['value']) and request_dict['type'] in ['open','high','low','close']:
 
-            s = (" SELECT MAX( select1.date ), date2 {up} FROM ("
-                        " SELECT t1.date, t1.{type}, "
-                        " MIN(t2.date) as date2 "
-                        " FROM dot_app_historical t1 "
-                        " INNER JOIN dot_app_historical t2 "
-                        " ON (t2.{type} >= t1.{type} + {value} ) "
-                        " AND t1.date < t2.date "
-                        " AND t1.company_alias_id = t2.company_alias_id "
-                        " WHERE t1.company_alias_id = {ticker_id} "
-                        " GROUP BY t1.id "
-                        " ORDER BY t1.date ) select1 "
-                        " GROUP BY date2 "
-                        " UNION "
-                        " SELECT MAX( select2.date ), date2{down}FROM ( "
-                        " SELECT t1.date, t1.{type}, "
-                        " MIN(t2.date) as date2 "
-                        " FROM dot_app_historical t1 "
-                        " INNER JOIN dot_app_historical t2 "
-                        " ON (t2.{type} <= t1.{type} - {value} ) "
-                        " AND t1.date < t2.date "
-                        " AND t1.company_alias_id = t2.company_alias_id "
-                        " WHERE t1.company_alias_id = {ticker_id} "
-                        " GROUP BY t1.id "
-                        " ORDER BY t1.date ) select2 "
-                        " GROUP BY date2 "
-                        " ORDER BY date2; " .format(ticker_id = 1,
-                                                    value = request_dict['value'],
-                                                    type = request_dict['type'],
-                                                    up = ", 'UP' direction ",
-                                                    down = ", 'DOWN' as direction ")
-                         )
-
+                s = (" SELECT MAX( select1.date ), date2 {up} FROM ("
+                            " SELECT t1.date, t1.{type}, "
+                            " MIN(t2.date) as date2 "
+                            " FROM dot_app_historical t1 "
+                            " INNER JOIN dot_app_historical t2 "
+                            " ON (t2.{type} >= t1.{type} + {value} ) "
+                            " AND t1.date < t2.date "
+                            " AND t1.company_alias_id = t2.company_alias_id "
+                            " WHERE t1.company_alias_id = {ticker_id} "
+                            " GROUP BY t1.id "
+                            " ORDER BY t1.date ) select1 "
+                            " GROUP BY date2 "
+                            " UNION "
+                            " SELECT MAX( select2.date ), date2{down}FROM ( "
+                            " SELECT t1.date, t1.{type}, "
+                            " MIN(t2.date) as date2 "
+                            " FROM dot_app_historical t1 "
+                            " INNER JOIN dot_app_historical t2 "
+                            " ON (t2.{type} <= t1.{type} - {value} ) "
+                            " AND t1.date < t2.date "
+                            " AND t1.company_alias_id = t2.company_alias_id "
+                            " WHERE t1.company_alias_id = {ticker_id} "
+                            " GROUP BY t1.id "
+                            " ORDER BY t1.date ) select2 "
+                            " GROUP BY date2 "
+                            " ORDER BY date2; " .format(ticker_id = 1,
+                                                        value = request_dict['value'],
+                                                        type = request_dict['type'],
+                                                        up = ", 'UP' direction ",
+                                                        down = ", 'DOWN' as direction ")
+                             )
+        except ValueError:
+            raise Http404
+            # pass
+        else:
             cursor = connection.cursor()
             cursor.execute(s)
             row = cursor.fetchall()
